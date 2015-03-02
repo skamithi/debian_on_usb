@@ -1,0 +1,28 @@
+- name: install necessary apps
+  apt: name={{item}}
+  with_items:
+    - binutils
+    - debootstrap
+    - squashfs-tools
+    - sudo
+
+- name: create debian chroot
+  file: path={{ build_dir }}/source state=directory owner={{ owner }}
+
+- name: execute debootstrap. install amd64 arch
+  command: >
+    debootstrap --arch {{arch }} {{distro}} "{{build_dir}}/source"
+    "{{ debian_site_url }}"
+    creates="{{build_dir}}/source/bin/bash" 
+
+- name: mount proc and dev filesystems
+  mount: name="{{build_dir}}/source/{{item}}" src="/{{item}}" fstype=auto opts=bind state=mounted
+  with_items:
+    - proc
+    - sys
+    - dev/pts
+
+- name: install python on the chroot environment
+  shell: creates="{{build_dir}}/source/usr/bin/python" >
+    LC_ALL=C LANGUAGE=C LANG=C sudo chroot "{{build_dir}}/source"
+    apt-get install -y --force-yes python

@@ -1,0 +1,43 @@
+- name: install policy-rc.d that prevents daemons from starting.
+  copy: src=policy-rc.d dest=/usr/sbin/policy-rc.d mode=0700
+
+- name: install linux kernel
+  apt: name="{{linux_kernel}}" update_cache=yes state=present
+
+- name: install feature apps. RAID/NFS/Samba
+  apt: name={{item}} state=present
+  with_items:
+    - vim
+    - mdadm
+    - samba
+    - less
+    - zsh
+    - grub2
+    - grub-pc-bin
+    - deborphan
+    - openssh-server
+
+- name: remove unneeded packages
+  apt: name={{item}} state=absent purge=yes
+  with_items:
+    - manpages
+    - telnet
+
+- name: configure timezone
+  template: src=timezone.j2 dest=/etc/timezone
+  notify: reconfigure timezone
+
+- name: setup fstab
+  file: src=fstab dest=/etc/fstab
+
+- name: create enable user
+  user: name=enable comment="Main User" uid=1000 group=sudo shell=/bin/zsh
+
+- name: add authorized keys to enable user
+  authorized_key: user=enable key="{{item}}"
+  with_file:
+    - public_keys/stanley.pub
+
+- name: setup network interface
+  file: src=interfaces dest=/etc/network/interfaces
+

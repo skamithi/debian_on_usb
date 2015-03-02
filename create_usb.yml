@@ -1,0 +1,14 @@
+---
+#  - hosts: vagrant
+#    roles:
+#      - prep_gentoo_chroot
+
+  - hosts: vagrant
+    roles:
+      - prep_debian_chroot
+
+  # manually install python first
+  # wondering if you can do this from debootstrap
+  - hosts: debian-chroot
+    roles:
+      - debian_chroot

@@ -1,0 +1,6 @@
+debian_site_url: http://ftp.us.debian.org/debian
+owner: vagrant
+distro: wheezy
+# amd64, armel, armhf, i386, ia64, mips, mipsel, powerpc, s390, s390x, sparc
+arch: amd64
+build_dir: /home/vagrant/debian_usb
